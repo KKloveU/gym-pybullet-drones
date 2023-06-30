@@ -26,7 +26,7 @@ from gym_pybullet_drones.control.DSLPIDControl import DSLPIDControl
 from gym_pybullet_drones.utils.Logger import Logger
 
 DEFAULT_PHYICS = Physics('pyb')
-DEFAULT_GUI = False
+DEFAULT_GUI = True
 DEFAULT_RECORD_VIDEO = False
 DEFAULT_TRACE_FILE = pkg_resources.resource_filename('gym_pybullet_drones', 'assets/example_trace.pkl')
 DEFAULT_OUTPUT_FOLDER = 'results'

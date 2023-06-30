@@ -54,7 +54,7 @@ def run(rllib=DEFAULT_RLLIB,output_folder=DEFAULT_OUTPUT_FOLDER, gui=DEFAULT_GUI
                     env,
                     verbose=1
                     )
-        model.learn(total_timesteps=10000) # Typically not enough
+        model.learn(total_timesteps=700000) # Typically not enough
     else:
         ray.shutdown()
         ray.init(ignore_reinit_error=True)

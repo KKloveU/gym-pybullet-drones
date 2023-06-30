@@ -222,7 +222,7 @@ class BaseAviary(gym.Env):
     
     ################################################################################
 
-    def reset(self):
+    def reset(self, reset_point=None):
         """Resets the environment.
 
         Returns
@@ -234,7 +234,7 @@ class BaseAviary(gym.Env):
         """
         p.resetSimulation(physicsClientId=self.CLIENT)
         #### Housekeeping ##########################################
-        self._housekeeping()
+        self._housekeeping(reset_point)
         #### Update and store the drones kinematic information #####
         self._updateAndStoreKinematicInformation()
         #### Start video recording #################################
@@ -422,7 +422,7 @@ class BaseAviary(gym.Env):
     
     ################################################################################
 
-    def _housekeeping(self):
+    def _housekeeping(self, reset_point=None):
         """Housekeeping function.
 
         Allocation and zero-ing of the variables and PyBullet's parameters/objects
@@ -457,13 +457,22 @@ class BaseAviary(gym.Env):
         p.setAdditionalSearchPath(pybullet_data.getDataPath(), physicsClientId=self.CLIENT)
         #### Load ground plane, drone and obstacles models #########
         self.PLANE_ID = p.loadURDF("plane.urdf", physicsClientId=self.CLIENT)
+        if reset_point is None:
+            self.DRONE_IDS = np.array([p.loadURDF(pkg_resources.resource_filename('gym_pybullet_drones', 'assets/'+self.URDF),
+                                                self.INIT_XYZS[i,:],
+                                                p.getQuaternionFromEuler(self.INIT_RPYS[i,:]),
+                                                flags = p.URDF_USE_INERTIA_FROM_FILE,
+                                                physicsClientId=self.CLIENT
+                                                ) for i in range(self.NUM_DRONES)])
+        else:
+            rest_xyz, reset_rpy = reset_point
+            self.DRONE_IDS = np.array([p.loadURDF(pkg_resources.resource_filename('gym_pybullet_drones', 'assets/'+self.URDF),
+                                                rest_xyz[i,:],
+                                                p.getQuaternionFromEuler(reset_rpy[i,:]),
+                                                flags = p.URDF_USE_INERTIA_FROM_FILE,
+                                                physicsClientId=self.CLIENT
+                                                ) for i in range(self.NUM_DRONES)])
 
-        self.DRONE_IDS = np.array([p.loadURDF(pkg_resources.resource_filename('gym_pybullet_drones', 'assets/'+self.URDF),
-                                              self.INIT_XYZS[i,:],
-                                              p.getQuaternionFromEuler(self.INIT_RPYS[i,:]),
-                                              flags = p.URDF_USE_INERTIA_FROM_FILE,
-                                              physicsClientId=self.CLIENT
-                                              ) for i in range(self.NUM_DRONES)])
         #### Remove default damping #################################
         # for i in range(self.NUM_DRONES):
         #     p.changeDynamics(self.DRONE_IDS[i], -1, linearDamping=0, angularDamping=0)
